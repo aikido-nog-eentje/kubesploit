@@ -87,13 +87,21 @@ func getDefaultGateway() string {
 	return fmt.Sprintf("%v.%v.%v.%v", a[3], a[2], a[1], a[0])
 }
 
-func writeToScanFile(i_DirPath string, i_ContentToWrite string) {
+func writeToScanFile(i_DirPath string, i_ContentToWrite string) error {
+	if strings.Contains(i_DirPath, "../") || strings.Contains(i_DirPath, "..\\") {
+		return fmt.Errorf("Invalid file path")
+	}
 	f, err := os.OpenFile(i_DirPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0644)
-	checkError(err)
+	if err != nil {
+		return err
+	}
 	defer f.Close()
 
 	_, err = f.WriteString(i_ContentToWrite)
-	checkError(err)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func read(i_Path string) string {
